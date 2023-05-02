@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /home/tirex/work/worktime
+cd /home/tirex/work/worktime3
 
 java -jar WorkTime-1.0-SNAPSHOT.jar
 

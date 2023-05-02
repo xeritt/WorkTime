@@ -2,10 +2,7 @@ package org.job;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 
 import dorkbox.systemTray.SystemTray;
 
@@ -24,22 +21,30 @@ public class Gui {
 
     private String status = DISCONECTED;
 
-    public void setStatus(String status) {
+    private String proName;
+    public void setTrayStatus(String status) {
         this.tray.setStatus(status);
+    }
+    public void setStatus(String status) {
+        //this.setTrayStatus(status);
         this.status = status;
     }
+
 
     public Gui() {
         System.out.println("Gui const");
         tray = SystemTray.get();
         tray.installShutdownHook();
 
+        proName = getProjectName();
         //Если уже запущено
         File file = new File("start");
         if (file.exists()){
+            setTrayStatus(CONNECTED + " " + proName);
             setStatus(CONNECTED);
             setLogo(LOGO_START);
         } else {
+            setTrayStatus(DISCONECTED + " " + proName);
             setStatus(DISCONECTED);
             setLogo(LOGO_STOP);
         }
@@ -67,7 +72,7 @@ public class Gui {
     public void setMenu() {
         System.out.println("Menu");
         JMenu menu = new JMenu("Main menu");
-        //addPropMenu(menu);
+        addPropMenu(menu);
 
         JMenuItem about = new JMenuItem("About");
         about.addActionListener(e -> {
@@ -83,6 +88,7 @@ public class Gui {
                 if (status.equals(CONNECTED)) return;
                 Process process = Runtime.getRuntime().exec("./run.sh");
                 printResults(process);
+                setTrayStatus(CONNECTED + " " + proName);
                 setStatus(CONNECTED);
                 setLogo(LOGO_START);
             } catch (IOException ex) {
@@ -97,6 +103,7 @@ public class Gui {
                 Process process = Runtime.getRuntime().exec("./run.sh");
                 printResults(process);
                 setStatus(DISCONECTED);
+                setTrayStatus(DISCONECTED + " " + proName);
                 setLogo(LOGO_STOP);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
@@ -153,5 +160,55 @@ public class Gui {
 
         tray.setMenu(menu);
     }
+
+    private void exec(String scriptName, String toastName) {
+       try {
+            Process process = Runtime.getRuntime().exec(scriptName);
+            String res = getResults(process);
+            Toast.showToast(toastName, res, 5000);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private String getProjectName(){
+        File project = new File("project.dat");
+        if (project.exists()){
+            try (FileReader reader = new FileReader(project); BufferedReader buffer = new BufferedReader(reader)) {
+                return buffer.readLine();
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return "";
+    }
+    private void addPropMenu(JMenu menu) {
+        JMenu propMenu = new JMenu("Project");
+        menu.add(propMenu);
+        File projects = new File("projects");
+        for (final File project : projects.listFiles()) {
+            if (project.isDirectory()) {
+                JMenuItem prop = new JMenuItem(project.getName());
+                prop.setOpaque(true);
+                prop.setBackground(Color.CYAN);
+
+                prop.addActionListener(e -> {
+                    if (status.equals(DISCONECTED)) {
+                        proName = project.getName();
+                        exec("./select.sh " + proName, "Select project");
+                        System.out.println("Set " + proName);
+                        setTrayStatus(status + " " + proName);
+                    } else {
+                        Toast.showToast("No Select project", "Stop current project", 5000);
+                    }
+                });
+                propMenu.add(prop);
+            }
+        }
+    }
+
+
 
 }

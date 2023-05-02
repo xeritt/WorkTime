@@ -1,9 +1,8 @@
 #!/bin/bash
-echo '--------------------'
-echo '   Fast Work Time v1.1   '
-echo '--------------------'
-SECONDS_FILE='seconds.dat'
-TIMES_FILE='times.dat'
+echo '---------------------------------'
+echo '   Fast Project Work Time v2.0   '
+echo '---------------------------------'
+source config.sh
 
 timestamp=$(date +%s)
 curtime=`date +%Y-%m-%d_%H:%M:%S`
