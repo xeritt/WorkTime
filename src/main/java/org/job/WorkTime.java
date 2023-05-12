@@ -8,8 +8,9 @@ public class WorkTime implements  Runnable {
     }
 
     public static void main(String[] args) {
-        Thread clientThread = new Thread(new WorkTime(args));
-        clientThread.start();
+          Thread clientThread = new Thread(new WorkTime(args));
+          clientThread.start();
+        //FileSystem.saveToFile("test.txt", String.valueOf(System.currentTimeMillis()));
     }
 
     @Override

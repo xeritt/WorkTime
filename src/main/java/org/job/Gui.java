@@ -13,6 +13,7 @@ import dorkbox.systemTray.SystemTray;
  */
 
 public class Gui {
+
     public final String DISCONECTED = "Pause";
     public final String CONNECTED = "Working";
     public final String LOGO_STOP = "/logo_offline.png";
@@ -84,30 +85,32 @@ public class Gui {
         JMenuItem stop = new JMenuItem("Stop");
 
         start.addActionListener(e -> {
-            try {
+            //try {
                 if (status.equals(CONNECTED)) return;
-                Process process = Runtime.getRuntime().exec("./run.sh");
-                printResults(process);
+                //Process process = Runtime.getRuntime().exec("./run.sh");
+                //printResults(process);
+                FileSystem.run();
                 setTrayStatus(CONNECTED + " " + proName);
                 setStatus(CONNECTED);
                 setLogo(LOGO_START);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            //} catch (IOException ex) {
+              //  throw new RuntimeException(ex);
+            //}
         });
         menu.add(start);
 
         stop.addActionListener(e -> {
-            try {
+            //try {
                 if (status.equals(DISCONECTED)) return;
-                Process process = Runtime.getRuntime().exec("./run.sh");
-                printResults(process);
+                //Process process = Runtime.getRuntime().exec("./run.sh");
+                //printResults(process);
+                FileSystem.run();
                 setStatus(DISCONECTED);
                 setTrayStatus(DISCONECTED + " " + proName);
                 setLogo(LOGO_STOP);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            //} catch (IOException ex) {
+              //  throw new RuntimeException(ex);
+            //}
         });
         menu.add(stop);
 
@@ -197,7 +200,9 @@ public class Gui {
                 prop.addActionListener(e -> {
                     if (status.equals(DISCONECTED)) {
                         proName = project.getName();
-                        exec("./select.sh " + proName, "Select project");
+                        //exec("./select.sh " + proName, "Select project");
+                        FileSystem.saveToFile(FileSystem.PROJECT_DAT_FILE, proName);
+                        Toast.showToast("Select project", proName, 5000);
                         System.out.println("Set " + proName);
                         setTrayStatus(status + " " + proName);
                     } else {
