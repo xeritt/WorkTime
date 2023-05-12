@@ -191,7 +191,15 @@ public class Gui {
     private void addPropMenu(JMenu menu) {
         JMenu propMenu = new JMenu("Project");
         menu.add(propMenu);
+
+        JMenuItem add = new JMenuItem("New");
+        add.addActionListener(e -> {
+            newProject();
+        });
+        propMenu.add(add);
+
         File projects = new File("projects");
+        if (!projects.exists()) return;
         for (final File project : projects.listFiles()) {
             if (project.isDirectory()) {
                 JMenuItem prop = new JMenuItem(project.getName());
@@ -213,8 +221,38 @@ public class Gui {
                 propMenu.add(prop);
             }
         }
+
     }
 
+    private static void newProject() {
+        String msgString1 = "Enter project name (50 symbols)";
+        JTextField textField = new JTextField(20);
+        Object[] array = {msgString1, textField};
+        final JOptionPane optionPane = new JOptionPane(
+                array,
+                JOptionPane.QUESTION_MESSAGE,
+                JOptionPane.YES_NO_OPTION);
+
+        JDialog dialog = optionPane.createDialog("New project");
+        dialog.setAlwaysOnTop(true);
+        dialog.setModal(true);
+        dialog.setVisible(true);
+
+        int value = ((Integer)optionPane.getValue()).intValue();
+
+        if (value == JOptionPane.YES_OPTION) {
+            String fileName = textField.getText();
+            fileName = FileSystem.PROJECTS_DIR + FileSystem.fileSeparator + fileName;
+            File file = new File(fileName);
+            if (file.exists() || file.isDirectory()){
+                Toast.showToast("Error create project", "File or Directory " + fileName +" is exists", 5000);
+            } else {
+                Toast.showToast("Create project", fileName, 5000);
+                file.mkdirs();
+            }
+
+        }
+    }
 
 
 }

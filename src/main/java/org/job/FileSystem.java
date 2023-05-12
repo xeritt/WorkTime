@@ -18,7 +18,7 @@ public class FileSystem {
     public static final String TIMES_DAT_FILE = "times.dat";
     public static final String SECONDS_DAT_FILE = "seconds.dat";
     public static final String ALLTIME_FILE = "alltime";
-
+    public static final String fileSeparator = File.separator;
     static void saveToFile(String fileName, String text) {
         try (FileWriter writer = new FileWriter(fileName)) {
             writer.write(text);
@@ -52,7 +52,7 @@ public class FileSystem {
     }
 
     static public String getFile(String projectDir, String fileName) {
-        return PROJECTS_DIR + "/" + projectDir + "/" + fileName;
+        return PROJECTS_DIR + fileSeparator + projectDir + fileSeparator + fileName;
     }
 
     static void run() {
