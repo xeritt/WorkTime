@@ -116,23 +116,19 @@ public class Gui {
 
         JMenuItem time = new JMenuItem("Time");
         time.addActionListener(e -> {
-            try {
-                Process process = Runtime.getRuntime().exec("./alltime.sh");
-                String res = getResults(process);
+            //try {
+                //Process process = Runtime.getRuntime().exec("./alltime.sh");
+                String res = FileSystem.allTime();//getResults(process);
                 Toast.showToast("Information", res, 5000);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            //} catch (IOException ex) {
+              //  throw new RuntimeException(ex);
+            //}
         });
         menu.add(time);
 
         JMenuItem clean = new JMenuItem("Clean");
         clean.addActionListener(e -> {
-            try {
-                Process process = Runtime.getRuntime().exec("./clean.sh");
-                String res = getResults(process);
-                setStatus(DISCONECTED);
-                setLogo(LOGO_STOP);
+           // try {
                 final JOptionPane optionPane = new JOptionPane(
                         "Do you understand?",
                         JOptionPane.QUESTION_MESSAGE,
@@ -146,12 +142,17 @@ public class Gui {
                 int value = ((Integer)optionPane.getValue()).intValue();
 
                 if (value == JOptionPane.YES_OPTION) {
+                    //Process process = Runtime.getRuntime().exec("./clean.sh");
+                    //String res = getResults(process);
+                    FileSystem.clean();
+                    setStatus(DISCONECTED);
+                    setLogo(LOGO_STOP);
                     Toast.showToast("Information", "Clean ok", 5000);
                 }
 
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            //} catch (IOException ex) {
+            //    throw new RuntimeException(ex);
+           // }
         });
         menu.add(clean);
 
