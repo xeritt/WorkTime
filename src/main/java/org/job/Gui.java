@@ -3,6 +3,8 @@ package org.job;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import dorkbox.systemTray.SystemTray;
 
@@ -13,6 +15,7 @@ import dorkbox.systemTray.SystemTray;
  */
 
 public class Gui {
+
 
     public final String DISCONECTED = "Pause";
     public final String CONNECTED = "Working";
@@ -77,7 +80,9 @@ public class Gui {
 
         JMenuItem about = new JMenuItem("About");
         about.addActionListener(e -> {
-            Toast.showToast("Information", "Working Time.", 5000);
+            String infoFileName = FileSystem.getFile(getProjectName(), FileSystem.INFO_TXT_FILE);
+            String info = FileSystem.readFile(infoFileName);
+            Toast.showToast("Information", "Working Time. Project info:\n" + info, 5000);
         });
         menu.add(about);
 
@@ -226,8 +231,11 @@ public class Gui {
 
     private static void newProject() {
         String msgString1 = "Enter project name (50 symbols)";
-        JTextField textField = new JTextField(20);
-        Object[] array = {msgString1, textField};
+        String msgString2 = "Enter info about project";
+        JTextField nameField = new JTextField(20);
+        JTextArea infoField = new JTextArea(15, 10);
+
+        Object[] array = {msgString1, nameField, msgString2, infoField};
         final JOptionPane optionPane = new JOptionPane(
                 array,
                 JOptionPane.QUESTION_MESSAGE,
@@ -241,15 +249,17 @@ public class Gui {
         int value = ((Integer)optionPane.getValue()).intValue();
 
         if (value == JOptionPane.YES_OPTION) {
-            String fileName = textField.getText();
-            fileName = FileSystem.PROJECTS_DIR + FileSystem.fileSeparator + fileName;
-            File file = new File(fileName);
+            String name = nameField.getText();
+            String dirName = FileSystem.PROJECTS_DIR + FileSystem.fileSeparator + name;
+            File file = new File(dirName);
             if (file.exists() || file.isDirectory()){
-                Toast.showToast("Error create project", "File or Directory " + fileName +" is exists", 5000);
+                Toast.showToast("Error create project", "File or Directory " + dirName +" is exists", 5000);
             } else {
-                Toast.showToast("Create project", fileName, 5000);
+                Toast.showToast("Create project", dirName, 5000);
                 file.mkdirs();
             }
+            String infoFileName = FileSystem.getFile(name, FileSystem.INFO_TXT_FILE);
+            FileSystem.saveToFile(infoFileName, infoField.getText());
 
         }
     }

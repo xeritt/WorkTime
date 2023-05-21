@@ -3,6 +3,8 @@ package org.job;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
@@ -18,11 +20,13 @@ public class FileSystem {
     public static final String TIMES_DAT_FILE = "times.dat";
     public static final String SECONDS_DAT_FILE = "seconds.dat";
     public static final String ALLTIME_FILE = "alltime";
+    public static final String INFO_TXT_FILE = "info.txt";
     public static final String fileSeparator = File.separator;
     static void saveToFile(String fileName, String text) {
         try (FileWriter writer = new FileWriter(fileName)) {
             writer.write(text);
-            writer.close();
+            writer.flush();
+            //writer.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -37,7 +41,7 @@ public class FileSystem {
         }
     }
 
-    static String readFile(String fileName) {
+    static String readFileLine(String fileName) {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             return reader.readLine();
         } catch (FileNotFoundException e) {
@@ -47,8 +51,15 @@ public class FileSystem {
         }
     }
 
+    static String readFile(String fileName) {
+        try {
+            return Files.readString(Path.of(fileName));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     static public String getProjectName() {
-        return readFile(PROJECT_DAT_FILE);
+        return readFileLine(PROJECT_DAT_FILE);
     }
 
     static public String getFile(String projectDir, String fileName) {
@@ -71,11 +82,11 @@ public class FileSystem {
         String curtime = getCurtime("yyyy-mm-dd_hh:mm:ss");
 
         if (file.exists()) {
-            long startstamp = Long.parseLong(readFile(START_FILE));
+            long startstamp = Long.parseLong(readFileLine(START_FILE));
             //startstamp=`cat start`
             long seconds = timestamp - startstamp;
             //seconds="$((timestamp-startstamp))"
-            String starttime = readFile(STARTTIME_FILE);
+            String starttime = readFileLine(STARTTIME_FILE);
             //starttime=`cat starttime`
             appendToFile(TIMES_DAT_FILE_, starttime + " " + curtime + " " + seconds);
             //echo $starttime $curtime $seconds >> $TIMES_FILE
@@ -144,12 +155,14 @@ public class FileSystem {
         String project = getProjectName();
         final String TIMES_DAT_FILE_ = getFile(project, TIMES_DAT_FILE);
         final String SECONDS_DAT_FILE_ = getFile(project, SECONDS_DAT_FILE);
+        final String INFO_TXT_FILE_ = getFile(project, INFO_TXT_FILE);
         List<String> files = Arrays.asList(
                 TIMES_DAT_FILE_,
                 SECONDS_DAT_FILE_,
                 START_FILE,
                 STARTTIME_FILE,
-                ALLTIME_FILE
+                ALLTIME_FILE,
+                INFO_TXT_FILE_
                 );
         String curTime = getCurtime("yyyymmdd_hh_mm_ss");
         Zip.zipFiles(files, project + curTime + ".zip");
