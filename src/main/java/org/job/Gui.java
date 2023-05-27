@@ -17,6 +17,7 @@ import dorkbox.systemTray.SystemTray;
 public class Gui {
 
 
+    private static final String VERSION = "1.1";
     public final String DISCONECTED = "Pause";
     public final String CONNECTED = "Working";
     public final String LOGO_STOP = "/logo_offline.png";
@@ -78,13 +79,11 @@ public class Gui {
         JMenu menu = new JMenu("Main menu");
         addPropMenu(menu);
 
-        JMenuItem about = new JMenuItem("About");
-        about.addActionListener(e -> {
-            String infoFileName = FileSystem.getFile(getProjectName(), FileSystem.INFO_TXT_FILE);
-            String info = FileSystem.readFile(infoFileName);
-            Toast.showToast("Information", "Working Time. Project info:\n" + info, 5000);
+        JMenuItem task = new JMenuItem("Task");
+        task.addActionListener(e -> {
+            task();
         });
-        menu.add(about);
+        menu.add(task);
 
         JMenuItem start = new JMenuItem("Start");
         JMenuItem stop = new JMenuItem("Stop");
@@ -161,13 +160,24 @@ public class Gui {
         });
         menu.add(clean);
 
+        JMenuItem about = new JMenuItem("About");
+        about.addActionListener(e -> {
+            //String infoFileName = FileSystem.getFile(getProjectName(), FileSystem.INFO_TXT_FILE);
+            //String info = FileSystem.readFile(infoFileName);
+            Toast.showToast("Information", "Working Time " + getVersion(), 5000);
+        });
+        menu.add(about);
+
         JMenuItem exit = new JMenuItem("Exit");
         exit.addActionListener(e -> {
                 System.exit(0);
         });
         menu.add(exit);
-
         tray.setMenu(menu);
+    }
+
+    public String getVersion() {
+        return "v." + VERSION;
     }
 
     private void exec(String scriptName, String toastName) {
@@ -229,13 +239,35 @@ public class Gui {
 
     }
 
-    private static void newProject() {
-        String msgString1 = "Enter project name (50 symbols)";
-        String msgString2 = "Enter info about project";
-        JTextField nameField = new JTextField(20);
-        JTextArea infoField = new JTextArea(15, 10);
+    private void task(){
+        String msgString = "Enter info about task";
+        JTextArea taskField = new JTextArea(5, 10);
+        String infoFileName = FileSystem.getFile(getProjectName(), FileSystem.INFO_TXT_FILE);
+        String text = FileSystem.readFile(infoFileName);
+        taskField.setText(text);
+        Object[] array = {msgString, taskField};
+        final JOptionPane optionPane = new JOptionPane(
+                array,
+                JOptionPane.QUESTION_MESSAGE,
+                JOptionPane.YES_NO_OPTION);
 
-        Object[] array = {msgString1, nameField, msgString2, infoField};
+        JDialog dialog = optionPane.createDialog("Task info");
+        dialog.setAlwaysOnTop(true);
+        dialog.setModal(true);
+        dialog.setVisible(true);
+
+        int value = ((Integer)optionPane.getValue()).intValue();
+
+        if (value == JOptionPane.YES_OPTION) {
+            String name = taskField.getText();
+            FileSystem.saveToFile(infoFileName, taskField.getText());
+        }
+    }
+    private void newProject() {
+        String msgString1 = "Enter project name (50 symbols)";
+        JTextField nameField = new JTextField(20);
+
+        Object[] array = {msgString1, nameField};
         final JOptionPane optionPane = new JOptionPane(
                 array,
                 JOptionPane.QUESTION_MESSAGE,
@@ -258,9 +290,6 @@ public class Gui {
                 Toast.showToast("Create project", dirName, 5000);
                 file.mkdirs();
             }
-            String infoFileName = FileSystem.getFile(name, FileSystem.INFO_TXT_FILE);
-            FileSystem.saveToFile(infoFileName, infoField.getText());
-
         }
     }
 
