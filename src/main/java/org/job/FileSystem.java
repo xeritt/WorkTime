@@ -52,6 +52,8 @@ public class FileSystem {
     }
 
     static String readFile(String fileName) {
+        File file = new File(fileName);
+        if (!file.exists()) return "";
         try {
             return Files.readString(Path.of(fileName));
         } catch (IOException e) {
